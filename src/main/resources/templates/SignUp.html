@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Creation de compte</title>
+<script type="text/javascript"></script>
+</head>
+<body>
+    <h1>Sign up</h1>
+    <div>
+        <a th:href="@{/Acceuil}">Back</a>
+    </div>
+    <br>
+    <div>
+        <form th:action="@{/Client/Signup}" th:object="${clientForm}" method="post">
+            <div>
+                <label for="">cin</label>
+                <input type="text" id="cin" th:field="*{cin}">
+                <span th:if="${#fields.hasErrors('cin')}" th:errors="*{cin}">cin Error</span>
+            </div>
+            
+            <div>
+                <label for="">nom</label>
+                <input type="text" id="nom" th:field="*{nom}">
+                <span th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}">nom Error</span>
+            </div>
+            
+            <div>
+                <label for="">prenom</label>
+                <input type="text" id="prenom" th:field="*{prenom}">
+                <span th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}">prenom Error</span>
+            </div>
+
+            <div>
+                <label for="">email</label>
+                <input type="text" id="email" th:field="*{email}">
+                <span th:if="${#fields.hasErrors('email')}" th:errors="*{email}">email Error</span>
+            </div>
+
+            <div>
+                <label for="">password</label>
+                <input type="password" id="password" th:field="*{password}">
+                <span th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password Error</span>
+            </div>
+
+            
+            <div>
+                <input type="submit" value="Add person">
+            </div>
+        </form>
+    </div>
+    <div>
+        <p style="color:red;" th:text="${error}"> error</p>
+    </div>
+
+</body>
+</html>
