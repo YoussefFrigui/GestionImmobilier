@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil.web.models;
+package com.tekup.gestionimmobil.dao.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

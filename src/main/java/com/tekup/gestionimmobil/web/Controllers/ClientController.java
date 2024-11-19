@@ -1,8 +1,5 @@
 package com.tekup.gestionimmobil.web.Controllers;
 
-import com.tekup.gestionimmobil.web.models.Client;
-import com.tekup.gestionimmobil.web.models.ClientForm;
-
 import jakarta.validation.Valid;
 
 import java.util.ArrayList;
@@ -15,6 +12,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.tekup.gestionimmobil.dao.entities.Client;
+import com.tekup.gestionimmobil.dao.entities.ClientForm;
 
 @Controller
 

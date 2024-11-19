@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil.web.models;
+package com.tekup.gestionimmobil.dao.entities;
 
 import jakarta.validation.constraints.NotBlank;
 
