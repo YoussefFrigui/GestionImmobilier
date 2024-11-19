@@ -15,6 +15,8 @@ import javax.persistence.*;
 @Getter
 @Setter
 @ToString
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public class User {
 
     @Id

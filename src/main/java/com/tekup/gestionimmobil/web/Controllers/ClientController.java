@@ -1,82 +1,71 @@
-package com.tekup.gestionimmobil.web.Controllers;
+package com.tekup.gestionimmobil.controllers;
 
-import jakarta.validation.Valid;
-
-import java.util.ArrayList;
-import java.util.List;
-
+import com.tekup.gestionimmobil.dao.entities.Client;
+import com.tekup.gestionimmobil.dto.ClientForm;
+import com.tekup.gestionimmobil.services.ClientService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
-import com.tekup.gestionimmobil.dao.entities.Client;
-import com.tekup.gestionimmobil.dao.entities.ClientForm;
+import javax.validation.Valid;
+import java.util.List;
 
 @Controller
-
-@RequestMapping("/Client")
+@RequestMapping("/clients")
 public class ClientController {
 
-    // Static list of clients
-    private static List<Client> clients = new ArrayList<>();
+    @Autowired
+    private ClientService clientService;
 
-    @RequestMapping("/signup")
-    public String showSignUpForm(Model model) {
+    @GetMapping("/signup")
+    public String showSignupForm(Model model) {
         model.addAttribute("clientForm", new ClientForm());
-        return "SignUp";
+        return "signupForm";
     }
 
-    @RequestMapping(path = "/signup", method = RequestMethod.POST)
-    public String signUp(@Valid @ModelAttribute("clientForm") ClientForm clientForm, BindingResult bindingResult, Model model) {
+    @PostMapping("/signup")
+    public String signupClient(@Valid @ModelAttribute("clientForm") ClientForm clientForm, BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct the errors in the form.");
-            return "SignUp";
+            return "signupForm";
         }
-        Client client = new Client();
-        client.setCin(clientForm.getCin());
-        client.setNom(clientForm.getNom());
-        client.setPrenom(clientForm.getPrenom());
-        client.setEmail(clientForm.getEmail());
-        client.setPassword(clientForm.getPassword());
-        client.setRole(clientForm.getRole());
-        clients.add(client);
-        return "redirect:/Client/signup";
+        clientService.saveClient(clientForm);
+        return "redirect:/clients";
     }
 
-    @RequestMapping("/{cin}/edit")
-    public String showEditClientForm(@PathVariable Long cin, Model model) {
-        for (Client client : clients) {
-            if (client.getCin().equals(cin)) {
-                model.addAttribute("clientForm", new ClientForm(client.getCin(), client.getNom(), client.getPrenom(), client.getEmail(), client.getPassword(), client.getRole()));
-                model.addAttribute("cin", cin);
-                return "editClientForm";
-            }
+    @GetMapping("/{cin}/edit")
+    public String showEditForm(@PathVariable Long cin, Model model) {
+        Client client = clientService.getClientByCin(cin);
+        if (client == null) {
+            model.addAttribute("error", "Client not found.");
+            return "editClientForm";
         }
-        model.addAttribute("error", "Client not found.");
-        return "redirect:/Client/signup";
+        model.addAttribute("clientForm", new ClientForm(client.getCin(), client.getNom(), client.getPrenom(), client.getEmail(), client.getPassword()));
+        return "editClientForm";
     }
 
-    @RequestMapping(path = "/{cin}/edit", method = RequestMethod.POST)
+    @PostMapping("/{cin}/edit")
     public String editClient(@Valid @ModelAttribute("clientForm") ClientForm clientForm, BindingResult bindingResult, @PathVariable Long cin, Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("error", "Please correct the errors in the form.");
             return "editClientForm";
         }
-        for (Client client : clients) {
-            if (client.getCin().equals(cin)) {
-                client.setNom(clientForm.getNom());
-                client.setPrenom(clientForm.getPrenom());
-                client.setEmail(clientForm.getEmail());
-                client.setPassword(clientForm.getPassword());
-                client.setRole(clientForm.getRole());
-                return "redirect:/Client/signup";
-            }
-        }
-        model.addAttribute("error", "Client not found.");
-        return "editClientForm";
+        clientService.updateClient(cin, clientForm);
+        return "redirect:/clients";
+    }
+
+    @GetMapping("/{cin}/delete")
+    public String deleteClient(@PathVariable Long cin, Model model) {
+        clientService.deleteClient(cin);
+        return "redirect:/clients";
+    }
+
+    @GetMapping
+    public String listClients(Model model) {
+        List<Client> clients = clientService.getAllClients();
+        model.addAttribute("clients", clients);
+        return "clientList";
     }
 }
