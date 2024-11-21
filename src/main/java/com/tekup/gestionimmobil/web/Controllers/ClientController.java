@@ -1,8 +1,8 @@
-package com.tekup.gestionimmobil.controllers;
+package com.tekup.gestionimmobil.web.Controllers;
 
 import com.tekup.gestionimmobil.dao.entities.Client;
 import com.tekup.gestionimmobil.dto.ClientForm;
-import com.tekup.gestionimmobil.services.ClientService;
+import com.tekup.gestionimmobil.business.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +22,7 @@ public class ClientController {
     @GetMapping("/signup")
     public String showSignupForm(Model model) {
         model.addAttribute("clientForm", new ClientForm());
-        return "signupForm";
+        return "signup"; // Ensure this matches your template name
     }
 
     @PostMapping("/signup")

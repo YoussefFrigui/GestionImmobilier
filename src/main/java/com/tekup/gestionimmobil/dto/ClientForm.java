@@ -1,6 +1,5 @@
 package com.tekup.gestionimmobil.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,7 +9,6 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 public class ClientForm {
 
@@ -30,4 +28,13 @@ public class ClientForm {
     private String password;
 
     private String role = "client";
+
+    // Custom constructor without role
+    public ClientForm(Long cin, String nom, String prenom, String email, String password) {
+        this.cin = cin;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.email = email;
+        this.password = password;
+    }
 }

@@ -3,10 +3,20 @@ package com.tekup.gestionimmobil.dao.entities;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
+import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
-import javax.persistence.*;
+
 
 @Entity
 @Table(name = "users")
@@ -35,6 +45,6 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "role", nullable = false)
+    @Column(name = "role", nullable = false, insertable = false, updatable = false)
     private String role;
 }

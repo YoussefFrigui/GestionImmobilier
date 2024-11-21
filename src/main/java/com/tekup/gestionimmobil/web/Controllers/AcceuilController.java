@@ -8,10 +8,11 @@ public class AcceuilController {
 
     @GetMapping("/acceuil")
     public String showAcceuilPage() {
-        return "acceuil"; // This should match the name of your acceuil.html file
+        return "Acceuil"; // Matches Acceuil.html
     }
+
     @GetMapping("/signin")
     public String showSignInPage() {
-        return "signin"; // This should match the name of your signin.html file
-    }   
+        return "signin"; // Matches signin.html
+    }
 }
