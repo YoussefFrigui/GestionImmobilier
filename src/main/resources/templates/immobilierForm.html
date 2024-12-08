@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <title th:text="${immobilierForm.id} == null ? 'Add Immobilier' : 'Edit Immobilier'"></title>
     <link rel="stylesheet" type="text/css" href="/styles.css">
+    <script>
+        function toggleMaisonFields() {
+            var type = document.getElementById("type").value;
+            var maisonFields = document.getElementById("maisonFields");
+            if (type === "Maison") {
+                maisonFields.style.display = "block";
+            } else {
+                maisonFields.style.display = "none";
+            }
+        }
+
+        window.onload = function() {
+            toggleMaisonFields();
+        };
+    </script>
 </head>
 <body>
     <div th:replace="fragments/header :: header"></div>
@@ -13,20 +28,30 @@
             <a th:href="@{/admin/immobiliers}">Back</a>
         </div>
         <br>
-        <form th:action="${immobilierForm.id} == null ? @{/admin/immobiliers} : @{/admin/immobiliers/{id}(id=${immobilierForm.id})}" th:object="${immobilierForm}" method="post" enctype="multipart/form-data">
+        <form th:action="${immobilierForm.id} == null ? @{/admin/immobiliers} : @{/admin/immobiliers/{id}(id=${immobilierForm.id})}" 
+              th:object="${immobilierForm}" 
+              method="post" 
+              enctype="multipart/form-data">
+            
+            <!-- Prix -->
             <div class="form-group">
                 <label for="prix">Prix</label>
-                <input type="text" id="prix" th:field="*{prix}" class="form-control">
+                <input type="number" id="prix" th:field="*{prix}" class="form-control">
                 <span th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}" class="error">Prix Error</span>
             </div>
+            
+            <!-- Ville -->
             <div class="form-group">
                 <label for="ville">Ville</label>
                 <input type="text" id="ville" th:field="*{ville}" class="form-control">
                 <span th:if="${#fields.hasErrors('ville')}" th:errors="*{ville}" class="error">Ville Error</span>
             </div>
+            
+            <!-- Delegation -->
             <div class="form-group">
                 <label for="delegation">Delegation</label>
                 <select id="delegation" th:field="*{delegation}" class="form-control">
+                    <!-- Delegation options -->
                     <option value="Ariana">Ariana</option>
                     <option value="Béja">Béja</option>
                     <option value="Ben Arous">Ben Arous</option>
@@ -54,45 +79,63 @@
                 </select>
                 <span th:if="${#fields.hasErrors('delegation')}" th:errors="*{delegation}" class="error">Delegation Error</span>
             </div>
-            <div class="form-group">
-                <label for="nbPieces">Nombre de Pieces</label>
-                <input type="text" id="nbPieces" th:field="*{nbPieces}" class="form-control">
-                <span th:if="${#fields.hasErrors('nbPieces')}" th:errors="*{nbPieces}" class="error">Nombre de Pieces Error</span>
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <textarea id="description" th:field="*{description}" class="form-control"></textarea>
-                <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error">Description Error</span>
-            </div>
-            <div class="form-group">
-                <label for="photo">Photo</label>
-                <input type="file" id="photo" th:field="*{photo}" class="form-control" multiple>
-                <span th:if="${#fields.hasErrors('photo')}" th:errors="*{photo}" class="error">Photo Error</span>
-            </div>
+            
+            <!-- Surface -->
             <div class="form-group">
                 <label for="surface">Surface</label>
-                <input type="text" id="surface" th:field="*{surface}" class="form-control">
+                <input type="number" id="surface" th:field="*{surface}" class="form-control">
                 <span th:if="${#fields.hasErrors('surface')}" th:errors="*{surface}" class="error">Surface Error</span>
             </div>
+            
+            <!-- Contact -->
             <div class="form-group">
-                <label for="telContact">Telephone Contact</label>
-                <input type="text" id="telContact" th:field="*{telContact}" class="form-control">
-                <span th:if="${#fields.hasErrors('telContact')}" th:errors="*{telContact}" class="error">Telephone Contact Error</span>
+                <label for="contact">Contact</label>
+                <input type="text" id="contact" th:field="*{contact}" class="form-control">
+                <span th:if="${#fields.hasErrors('contact')}" th:errors="*{contact}" class="error">Contact Error</span>
             </div>
-            <div class="form-group">
-                <label for="type">Type</label>
-                <select id="type" th:field="*{type}" class="form-control">
-                    <option value="Maison">Maison</option>
-                    <option value="Terrain">Terrain</option>
-                </select>
-                <span th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="error">Type Error</span>
-            </div>
+            
+            <!-- Etat -->
             <div class="form-group">
                 <label for="etat">Etat</label>
                 <input type="text" id="etat" th:field="*{etat}" class="form-control">
                 <span th:if="${#fields.hasErrors('etat')}" th:errors="*{etat}" class="error">Etat Error</span>
             </div>
-            <button type="submit" class="btn btn-primary" th:text="${immobilierForm.id} == null ? 'Add Immobilier' : 'Update Immobilier'"></button>
+            
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" th:field="*{description}" class="form-control"></textarea>
+                <span th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="error">Description Error</span>
+            </div>
+            
+            <!-- Photo Upload -->
+            <div class="form-group">
+                <label for="photos">Photos</label>
+                <input type="file" id="photos" th:field="*{photos}" class="form-control" multiple>
+                <span th:if="${#fields.hasErrors('photos')}" th:errors="*{photos}" class="error">Photos Error</span>
+            </div>
+            
+            <!-- Type Selection -->
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type" th:field="*{type}" class="form-control" onchange="toggleMaisonFields()">
+                    <option value="">-- Select Type --</option>
+                    <option value="Maison" th:selected="${immobilierForm.type == 'Maison'}">Maison</option>
+                    <option value="Terrain" th:selected="${immobilierForm.type == 'Terrain'}">Terrain</option>
+                </select>
+                <span th:if="${#fields.hasErrors('type')}" th:errors="*{type}" class="error">Type Error</span>
+            </div>
+            
+            <!-- Maison Specific Field -->
+            <div class="form-group" id="maisonFields" th:if="${immobilierForm.type == 'Maison'}" style="display: none;">
+                <label for="nbChambre">Nombre de Chambres</label>
+                <input type="number" id="nbChambre" th:field="*{nbChambre}" class="form-control">
+                <span th:if="${#fields.hasErrors('nbChambre')}" th:errors="*{nbChambre}" class="error">Nombre de Chambres Error</span>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" 
+                    th:text="${immobilierForm.id} == null ? 'Add Immobilier' : 'Update Immobilier'">
+            </button>
         </form>
     </div>
 </body>

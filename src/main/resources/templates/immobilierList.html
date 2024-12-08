@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Immobilier List</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="container">
+        <h1>Immobilier List</h1>
+        <div>
+            <a th:href="@{/admin/immobiliers/new}">Add New Immobilier</a>
+        </div>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Prix</th>
+                    <th>Ville</th>
+                    <th>Delegation</th>
+                    <th>Surface</th>
+                    <th>Contact</th>
+                    <th>Etat</th>
+                    <th>Photos</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="immobilier : ${immobiliers}">
+                    <td th:text="${immobilier.id}">1</td>
+                    <td th:text="${immobilier.prix}">100</td>
+                    <td th:text="${immobilier.ville}">City</td>
+                    <td th:text="${immobilier.delegation}">Delegation</td>
+                    <td th:text="${immobilier.surface}">50</td>
+                    <td th:text="${immobilier.contact}">123456789</td>
+                    <td th:text="${immobilier.etat}">Good</td>
+                    <td>
+                        <ul>
+                            <li th:each="photo : ${immobilier.photos}">
+                                <img th:src="@{'/uploads/' + ${photo}}" alt="Photo" width="100">
+                            </li>
+                        </ul>
+                    </td>
+                    <td>
+                        <a th:href="@{'/admin/immobiliers/edit/' + ${immobilier.id}}">Edit</a>
+                        <!-- Add delete functionality as needed -->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class ImmobilierForm {
@@ -11,11 +13,11 @@ public class ImmobilierForm {
     private int prix;
     private String ville;
     private String delegation;
-    private int nbPieces;
     private String description;
-    private MultipartFile photo; // Change to MultipartFile
     private int surface;
-    private int telContact;
-    private String type;
+    private String contact;
     private String etat;
+    private String type; // "Maison" or "Terrain"
+    private int nbChambre; // For Maison
+    private List<MultipartFile> photos; // Changed to List for multiple uploads
 }

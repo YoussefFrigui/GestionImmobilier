@@ -6,13 +6,18 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "immobiliers")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type")
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter
 @Getter
-public class Immobilier {
+public abstract class Immobilier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,24 +32,20 @@ public class Immobilier {
     @Column(name = "delegation", nullable = false)
     private String delegation;
 
-    @Column(name = "nb_pieces", nullable = false)
-    private int nbPieces;
+    @Column(name = "surface", nullable = false)
+    private int surface;
+
+    @Column(name = "contact", nullable = false)
+    private String contact;
 
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "photo")
-    private String photo;
-
-    @Column(name = "surface", nullable = false)
-    private int surface;
-
-    @Column(name = "tel_contact", nullable = false)
-    private int telContact;
-
-    @Column(name = "type", nullable = false)
-    private String type;
-
     @Column(name = "etat", nullable = false)
     private String etat;
+
+    @ElementCollection
+    @CollectionTable(name = "immobilier_photos", joinColumns = @JoinColumn(name = "immobilier_id"))
+    @Column(name = "photo")
+    private List<String> photos = new ArrayList<>();
 }
