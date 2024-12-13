@@ -1,4 +1,4 @@
-/*package com.tekup.gestionimmobil.dao.entities;
+package com.tekup.gestionimmobil.dao.entities;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -15,4 +15,3 @@ public class Client extends User {
         super(username, email, password, "client");
     }
 }
-*/

@@ -9,13 +9,17 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ClientForm {
 
+    private Long cin;
+    private String nom;
+    private String prenom;
     private String username;
     private String email;
     private String password;
 
-    // Ajoutez un constructeur si nécessaire
-    public ClientForm(String username, String email, String password) {
-        this.username = username;
+    public ClientForm(Long cin, String nom, String prenom, String email, String password) {
+        this.cin = cin;
+        this.nom = nom;
+        this.prenom = prenom;
         this.email = email;
         this.password = password;
     }

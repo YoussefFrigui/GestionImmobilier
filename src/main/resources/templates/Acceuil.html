@@ -9,6 +9,10 @@
     <div th:replace="fragments/header :: header"></div>
     <div class="container">
         <h1>Immobilier List</h1>
+        <div>
+            <button onclick="window.location.href='/signin'">Sign In</button>
+            <button onclick="window.location.href='/clients/register'">Register</button>
+        </div>
         <br>
         <table class="table">
             <thead>
@@ -24,17 +28,17 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="annonce : ${annonces}">
-                    <td th:text="${annonce.immobilier.id}">1</td>
-                    <td th:text="${annonce.immobilier.prix}">100</td>
-                    <td th:text="${annonce.immobilier.ville}">City</td>
-                    <td th:text="${annonce.immobilier.delegation}">Delegation</td>
-                    <td th:text="${annonce.immobilier.surface}">50</td>
-                    <td th:text="${annonce.immobilier.contact}">123456789</td>
-                    <td th:text="${annonce.immobilier.etat}">Good</td>
+                <tr th:each="immobilier : ${immobiliers}">
+                    <td th:text="${immobilier.id}">1</td>
+                    <td th:text="${immobilier.prix}">100</td>
+                    <td th:text="${immobilier.ville}">City</td>
+                    <td th:text="${immobilier.delegation}">Delegation</td>
+                    <td th:text="${immobilier.surface}">50</td>
+                    <td th:text="${immobilier.contact}">123456789</td>
+                    <td th:text="${immobilier.etat}">Good</td>
                     <td>
                         <ul>
-                            <li th:each="photo : ${annonce.immobilier.photos}">
+                            <li th:each="photo : ${immobilier.photos}">
                                 <img th:src="@{'/uploads/' + ${photo}}" alt="Photo" width="100">
                             </li>
                         </ul>

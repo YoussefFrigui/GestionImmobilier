@@ -1,4 +1,4 @@
-/*package com.tekup.gestionimmobil.business.services;
+package com.tekup.gestionimmobil.business.services;
 
 import com.tekup.gestionimmobil.dao.entities.Client;
 import com.tekup.gestionimmobil.dto.ClientForm;
@@ -12,4 +12,3 @@ public interface ClientService {
     void deleteClient(Long id); // Suppression d'un client
     List<Client> getAllClients(); // Récupère la liste des clients
 }
-*/

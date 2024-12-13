@@ -22,7 +22,7 @@ public class User {
     private String password;
     private String role;
 
-    // Constructeur avec tous les paramètres nécessaires
+    // Constructor with all necessary parameters
     public User(Long cin, String nom, String prenom, String email, String password, String role) {
         this.cin = cin;
         this.nom = nom;
@@ -30,5 +30,22 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    // Constructor with username, email, password, and role
+    public User(String username, String email, String password, String role) {
+        this.nom = username;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    // Getter and setter for username
+    public String getUsername() {
+        return nom;
+    }
+
+    public void setUsername(String username) {
+        this.nom = username;
     }
 }
