@@ -6,29 +6,42 @@
     <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <h1>Acceuil</h1>
-    <p th:text="'Welcome to our site !'"></p>
-    <nav>
-        <a th:href="@{/signin}">Signin</a>
-        <a th:href="@{/clients/signup}">Signup</a>
-    </nav>
+    <div th:replace="fragments/header :: header"></div>
     <div class="container">
-        <div class="row">
-            <div th:each="annonce : ${annonces}" class="col-md-4">
-                <div class="card">
-                    <img th:src="@{'/uploads/' + ${annonce.immobilier.photo}}" class="card-img-top" alt="Annonce Image">
-                    <div class="card-body">
-                        <h5 class="card-title" th:text="${annonce.immobilier.ville} + ', ' + ${annonce.immobilier.delegation}"></h5>
-                        <p class="card-text" th:text="${annonce.immobilier.description}"></p>
-                        <p class="card-text"><strong>Prix:</strong> <span th:text="${annonce.immobilier.prix}"></span></p>
-                        <p class="card-text"><strong>Surface:</strong> <span th:text="${annonce.immobilier.surface}"></span> m²</p>
-                        <p class="card-text"><strong>Type:</strong> <span th:text="${annonce.immobilier.type}"></span></p>
-                        <p class="card-text"><strong>Etat:</strong> <span th:text="${annonce.etatAnnonce}"></span></p>
-                        <p class="card-text"><strong>Date:</strong> <span th:text="${#dates.format(annonce.date, 'dd/MM/yyyy')}"></span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h1>Immobilier List</h1>
+        <br>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Prix</th>
+                    <th>Ville</th>
+                    <th>Delegation</th>
+                    <th>Surface</th>
+                    <th>Contact</th>
+                    <th>Etat</th>
+                    <th>Photos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="annonce : ${annonces}">
+                    <td th:text="${annonce.immobilier.id}">1</td>
+                    <td th:text="${annonce.immobilier.prix}">100</td>
+                    <td th:text="${annonce.immobilier.ville}">City</td>
+                    <td th:text="${annonce.immobilier.delegation}">Delegation</td>
+                    <td th:text="${annonce.immobilier.surface}">50</td>
+                    <td th:text="${annonce.immobilier.contact}">123456789</td>
+                    <td th:text="${annonce.immobilier.etat}">Good</td>
+                    <td>
+                        <ul>
+                            <li th:each="photo : ${annonce.immobilier.photos}">
+                                <img th:src="@{'/uploads/' + ${photo}}" alt="Photo" width="100">
+                            </li>
+                        </ul>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>

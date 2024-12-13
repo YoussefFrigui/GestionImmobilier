@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil;
+/*package com.tekup.gestionimmobil;
 
 import com.tekup.gestionimmobil.dao.entities.Admin;
 import com.tekup.gestionimmobil.*;l.dao.repositories.AdminRepository;
@@ -30,3 +30,4 @@ public class AdminRepositoryTest {
         System.out.println("Admin saved successfully: " + savedAdmin.getNom());
     }
 }
+*/

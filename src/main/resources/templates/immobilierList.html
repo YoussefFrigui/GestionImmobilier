@@ -9,7 +9,7 @@
     <div th:replace="fragments/header :: header"></div>
     <div class="container">
         <h1>Immobilier List</h1>
-        <div>
+        <div th:if="${isAdmin}">
             <a th:href="@{/admin/immobiliers/new}">Add New Immobilier</a>
         </div>
         <br>
@@ -24,7 +24,7 @@
                     <th>Contact</th>
                     <th>Etat</th>
                     <th>Photos</th>
-                    <th>Actions</th>
+                    <th th:if="${isAdmin}">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,7 +43,7 @@
                             </li>
                         </ul>
                     </td>
-                    <td>
+                    <td th:if="${isAdmin}">
                         <a th:href="@{'/admin/immobiliers/edit/' + ${immobilier.id}}">Edit</a>
                         <!-- Add delete functionality as needed -->
                     </td>

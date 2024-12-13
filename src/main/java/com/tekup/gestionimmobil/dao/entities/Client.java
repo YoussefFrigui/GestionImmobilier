@@ -1,9 +1,9 @@
-package com.tekup.gestionimmobil.dao.entities;
+/*package com.tekup.gestionimmobil.dao.entities;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter
@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Client extends User {
 
-    public Client(Long cin, String nom, String prenom, String email, String password) {
-        super(cin, nom, prenom, email, password, "client");
+    public Client(String username, String email, String password) {
+        super(username, email, password, "client");
     }
 }
+*/

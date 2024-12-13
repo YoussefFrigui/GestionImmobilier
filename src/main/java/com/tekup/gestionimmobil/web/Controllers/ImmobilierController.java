@@ -60,7 +60,7 @@ public class ImmobilierController {
         immobilier.setDescription(immobilierForm.getDescription());
         immobilier.setSurface(immobilierForm.getSurface());
         immobilier.setContact(immobilierForm.getContact());
-        immobilier.setEtat(immobilierForm.getEtat());
+        
 
         // Handle multiple file uploads
         if (immobilierForm.getPhotos() != null && !immobilierForm.getPhotos().isEmpty()) {
@@ -98,7 +98,7 @@ public class ImmobilierController {
             immobilierForm.setDescription(existingImmobilier.getDescription());
             immobilierForm.setSurface(existingImmobilier.getSurface());
             immobilierForm.setContact(existingImmobilier.getContact());
-            immobilierForm.setEtat(existingImmobilier.getEtat());
+
 
             if (existingImmobilier instanceof Maison) {
                 Maison maison = (Maison) existingImmobilier;
@@ -127,7 +127,6 @@ public class ImmobilierController {
             updatedImmobilier.setDescription(immobilierForm.getDescription());
             updatedImmobilier.setSurface(immobilierForm.getSurface());
             updatedImmobilier.setContact(immobilierForm.getContact());
-            updatedImmobilier.setEtat(immobilierForm.getEtat());
 
             if (updatedImmobilier instanceof Maison) {
                 Maison maison = (Maison) updatedImmobilier;
@@ -154,7 +153,7 @@ public class ImmobilierController {
 
             immobilierService.save(updatedImmobilier);
             return "redirect:/admin/immobiliers";
-        } else {
+        } else {    
             return "redirect:/admin/immobiliers";
         }
     }

@@ -2,9 +2,8 @@ package com.tekup.gestionimmobil.dao.entities;
 
 import jakarta.persistence.Entity;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.NoArgsConstructor;
-
+import lombok.Setter;
 
 @Entity
 @Getter

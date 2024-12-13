@@ -1,17 +1,15 @@
-package com.tekup.gestionimmobil.business.services;
+/*package com.tekup.gestionimmobil.business.services;
 
 import com.tekup.gestionimmobil.dao.entities.Client;
 import com.tekup.gestionimmobil.dto.ClientForm;
 
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
-@Service
 public interface ClientService {
-    void saveClient(ClientForm clientForm);
-    Client getClientByCin(Long cin);
-    void updateClient(Long cin, ClientForm clientForm);
-    void deleteClient(Long cin);
-    List<Client> getAllClients();
+    Client getClientById(Long id);
+    void saveClient(ClientForm clientForm); // Enregistre un nouveau client
+    void updateClient(Long id, ClientForm clientForm); // Mise à jour d'un client existant
+    void deleteClient(Long id); // Suppression d'un client
+    List<Client> getAllClients(); // Récupère la liste des clients
 }
+*/
