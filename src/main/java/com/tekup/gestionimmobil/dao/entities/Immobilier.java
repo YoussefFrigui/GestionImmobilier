@@ -17,6 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
+
+
 public abstract class Immobilier {
 
     @Id
@@ -41,6 +43,21 @@ public abstract class Immobilier {
     @Column(name = "description", nullable = false)
     private String description;
 
+    public enum Etat {
+        A_VENDRE("A vendre"),
+        A_LOUER("A louer");
+
+        private final String displayName;
+
+        Etat(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
+
     @Column(name = "etat", nullable = false)
     private String etat;
 
@@ -48,4 +65,5 @@ public abstract class Immobilier {
     @CollectionTable(name = "immobilier_photos", joinColumns = @JoinColumn(name = "immobilier_id"))
     @Column(name = "photo")
     private List<String> photos = new ArrayList<>();
-}
+
+    }
