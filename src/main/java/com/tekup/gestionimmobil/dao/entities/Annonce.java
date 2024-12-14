@@ -1,14 +1,15 @@
 package com.tekup.gestionimmobil.dao.entities;
 
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
-import java.sql.Date;
+import java.util.Date;
 
 @Entity
+@Table(name = "annonces")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,13 +20,32 @@ public class Annonce {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Association with Immobilier
     @ManyToOne
     @JoinColumn(name = "immobilier_id", nullable = false)
     private Immobilier immobilier;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "date", nullable = false)
     private Date date;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "etat_annonce", nullable = false)
-    private String etatAnnonce;
+    private EtatAnnonce etatAnnonce;
+
+    // Enum for EtatAnnonce
+    public enum EtatAnnonce {
+        DISPO("Dispo"),
+        INDISPO("Indispo");
+
+        private final String displayName;
+
+        EtatAnnonce(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+    }
 }

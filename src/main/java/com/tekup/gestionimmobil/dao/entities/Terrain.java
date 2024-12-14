@@ -8,9 +8,14 @@ import lombok.Setter;
 
 @Entity
 @DiscriminatorValue("Terrain")
-@NoArgsConstructor
-@Setter
 @Getter
+@Setter
+@NoArgsConstructor
 public class Terrain extends Immobilier {
-    // No additional fields for Terrain
+
+    // Terrain-specific fields and methods can be added here
+
+    // Example:
+    // @Column(name = "categorie")
+    // private String categorie;
 }

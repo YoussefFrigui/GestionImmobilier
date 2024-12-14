@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil.web.Controllers;
+package com.tekup.gestionimmobil.web.controllers;
 
 import com.tekup.gestionimmobil.business.services.AnnonceService;
 import com.tekup.gestionimmobil.dao.entities.Annonce;

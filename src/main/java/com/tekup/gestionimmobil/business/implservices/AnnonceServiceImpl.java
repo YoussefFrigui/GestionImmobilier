@@ -2,6 +2,7 @@ package com.tekup.gestionimmobil.business.implservices;
 
 import com.tekup.gestionimmobil.business.services.AnnonceService;
 import com.tekup.gestionimmobil.dao.entities.Annonce;
+import com.tekup.gestionimmobil.dao.entities.Annonce.EtatAnnonce;
 import com.tekup.gestionimmobil.dao.repositories.AnnonceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 @Service
 public class AnnonceServiceImpl implements AnnonceService {
+
     @Autowired
     private AnnonceRepository annonceRepository;
 
@@ -32,5 +34,10 @@ public class AnnonceServiceImpl implements AnnonceService {
     @Override
     public void deleteById(Long id) {
         annonceRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Annonce> findByEtatAnnonce(EtatAnnonce etatAnnonce) {
+        return annonceRepository.findByEtatAnnonce(etatAnnonce);
     }
 }

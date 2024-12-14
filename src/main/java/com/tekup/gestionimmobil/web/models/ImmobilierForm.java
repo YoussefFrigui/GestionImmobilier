@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil.dto;
+package com.tekup.gestionimmobil.web.models;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,14 +10,14 @@ import java.util.List;
 @Setter
 public class ImmobilierForm {
     private Long id;
-    private int prix;
+    private double prix;
     private String ville;
     private String delegation;
     private String description;
-    private int surface;
+    private double surface;
     private String contact;
-    private String etat;
+    private String etat; // Will map to Enum in the controller
     private String type; // "Maison" or "Terrain"
-    private int nbChambre; // For Maison
-    private List<MultipartFile> photos; // Changed to List for multiple uploads
+    private Integer nbChambre; // For Maison; use Integer to allow null
+    private List<MultipartFile> photos; // For multiple photo uploads
 }

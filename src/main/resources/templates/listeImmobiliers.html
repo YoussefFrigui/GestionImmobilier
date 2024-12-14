@@ -38,8 +38,8 @@
                     <td th:text="${immobilier.etat}">Good</td>
                     <td>
                         <ul>
-                            <li th:each="photo : ${immobilier.photos}">
-                                <img th:src="@{'/uploads/' + ${photo}}" alt="Photo" width="100">
+                            <li th:each="photo : ${immobilier.photoPaths}">
+                                <img th:src="@{${photo}}" alt="Photo" width="100"/>
                             </li>
                         </ul>
                     </td>

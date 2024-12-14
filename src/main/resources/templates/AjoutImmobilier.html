@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${immobilier.id == null ? 'Add Immobilier' : 'Edit Immobilier'}">Immobilier Form</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <script>
+        function toggleTypeFields() {
+            var type = document.getElementById("type").value;
+            var maisonFields = document.getElementById("maisonFields");
+            if (type === "Maison") {
+                maisonFields.style.display = "block";
+            } else {
+                maisonFields.style.display = "none";
+            }
+        }
+
+        window.onload = function() {
+            toggleTypeFields();
+        };
+    </script>
+</head>
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div class="container">
+        <form th:action="${immobilier.id == null} ? @{/admin/immobiliers/add} : @{/admin/immobiliers/edit/{id}(id=${immobilier.id})}" 
+              th:object="${immobilier}" 
+              method="post" 
+              enctype="multipart/form-data">
+            
+            <!-- Hidden ID Field -->
+            <input type="hidden" th:field="*{id}" />
+
+            <!-- Description Field -->
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <input type="text" class="form-control" id="description" th:field="*{description}" required />
+            </div>
+
+            <!-- Price Field -->
+            <div class="form-group">
+                <label for="prix">Prix:</label>
+                <input type="number" step="0.01" class="form-control" id="prix" th:field="*{prix}" required />
+            </div>
+
+            <!-- City Field -->
+            <div class="form-group">
+                <label for="ville">Ville:</label>
+                <input type="text" class="form-control" id="ville" th:field="*{ville}" required />
+            </div>
+
+            <!-- Delegation Field -->
+            <div class="form-group">
+                <label for="delegation">Delegation:</label>
+                <input type="text" class="form-control" id="delegation" th:field="*{delegation}" required />
+            </div>
+
+            <!-- Surface Field -->
+            <div class="form-group">
+                <label for="surface">Surface:</label>
+                <input type="number" step="0.01" class="form-control" id="surface" th:field="*{surface}" required />
+            </div>
+
+            <!-- Contact Field -->
+            <div class="form-group">
+                <label for="contact">Contact:</label>
+                <input type="text" class="form-control" id="contact" th:field="*{contact}" required />
+            </div>
+
+            <!-- Etat Field -->
+            <div class="form-group">
+                <label for="etat">Etat:</label>
+                <input type="text" class="form-control" id="etat" th:field="*{etat}" required />
+            </div>
+
+            <!-- Type Field -->
+            <div class="form-group">
+                <label for="type">Type:</label>
+                <select class="form-control" id="type" th:field="*{type}" onchange="toggleTypeFields()" required>
+                    <option value="">Select Type</option>
+                    <option value="Maison">Maison</option>
+                    <option value="Terrain">Terrain</option>
+                    <!-- Add other types as needed -->
+                </select>
+            </div>
+
+            <!-- Maison-Specific Fields -->
+            <div id="maisonFields" style="display: none;">
+                <div class="form-group">
+                    <label for="nbChambre">Nombre de Chambres:</label>
+                    <input type="number" class="form-control" id="nbChambre" th:field="*{nbChambre}" />
+                </div>
+                <!-- Add other maison-specific fields as needed -->
+            </div>
+
+            <!-- Photos Upload Field -->
+            <div class="form-group">
+                <label for="photos">Photos:</label>
+                <input type="file" class="form-control-file" id="photos" name="photos" multiple />
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" th:text="${immobilier.id == null ? 'Add' : 'Update'}">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

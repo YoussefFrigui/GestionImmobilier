@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Edit Annonce'"></title>
+    <title th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Edit Annonce'">Annonce Form</title>
     <link rel="stylesheet" type="text/css" href="/styles.css">
 </head>
 <body>
@@ -10,18 +10,62 @@
     <div class="container">
         <h1 th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Edit Annonce'"></h1>
         <div>
-            <a th:href="@{/admin/annonces}">Back</a>
+            <a th:href="@{/admin/annonces}">Back to Annonces</a>
         </div>
         <br>
-        <form th:action="${annonceForm.id} == null ? @{/admin/annonces} : @{/admin/annonces/{id}(id=${annonceForm.id})}" th:object="${annonceForm}" method="post">
+        <form th:action="${annonceForm.id} == null ? @{/admin/annonces/add} : @{/admin/annonces/edit/{id}(id=${annonceForm.id})}" 
+              th:object="${annonceForm}" 
+              method="post">
+            
+            <!-- Select Immobilier -->
             <div class="form-group">
                 <label for="immobilierId">Immobilier</label>
-                <select id="immobilierId" th:field="*{immobilierId}" class="form-control">
-                    <option th:each="immobilier : ${immobiliers}" th:value="${immobilier.id}" th:text="${immobilier.description}"></option>
+                <select id="immobilierId" th:field="*{immobilierId}" class="form-control" required>
+                    <option value="" disabled selected>-- Select Immobilier --</option>
+                    <option th:each="immobilier : ${immobiliers}" 
+                            th:value="${immobilier.id}" 
+                            th:text="${immobilier.description}"></option>
                 </select>
-                <span th:if="${#fields.hasErrors('immobilierId')}" th:errors="*{immobilierId}" class="error">Immobilier Error</span>
+                <span th:if="${#fields.hasErrors('immobilierId')}" 
+                      th:errors="*{immobilierId}" 
+                      class="error">Immobilier Error</span>
             </div>
-            <button type="submit" class="btn btn-primary" th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Update Annonce'"></button>
+            
+            <!-- Date -->
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" 
+                       th:field="*{date}" 
+                       class="form-control" 
+                       required />
+                <span th:if="${#fields.hasErrors('date')}" 
+                      th:errors="*{date}" 
+                      class="error">Date Error</span>
+            </div>
+            
+            <!-- Etat Annonce -->
+            <div class="form-group">
+                <label for="etatAnnonce">Etat Annonce</label>
+                <select id="etatAnnonce" th:field="*{etatAnnonce}" class="form-control" required>
+                    <option value="" disabled selected>-- Select Etat Annonce --</option>
+                    <option value="DISPO">Dispo</option>
+                    <option value="INDISPO">Indispo</option>
+                </select>
+                <span th:if="${#fields.hasErrors('etatAnnonce')}" 
+                      th:errors="*{etatAnnonce}" 
+                      class="error">Etat Annonce Error</span>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" 
+                        th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Update Annonce'"></button>
+            </div>
+            
+            <!-- General Error Message -->
+            <div th:if="${error}" class="error">
+                <p th:text="${error}"></p>
+            </div>
         </form>
     </div>
 </body>

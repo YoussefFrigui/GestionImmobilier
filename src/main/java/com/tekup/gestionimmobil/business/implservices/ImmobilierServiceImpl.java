@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @Service
 public class ImmobilierServiceImpl implements ImmobilierService {
+
     @Autowired
     private ImmobilierRepository immobilierRepository;
 

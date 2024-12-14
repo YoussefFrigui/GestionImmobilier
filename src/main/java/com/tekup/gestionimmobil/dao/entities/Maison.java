@@ -9,11 +9,13 @@ import lombok.Setter;
 
 @Entity
 @DiscriminatorValue("Maison")
-@NoArgsConstructor
-@Setter
 @Getter
+@Setter
+@NoArgsConstructor
 public class Maison extends Immobilier {
 
-    @Column(name = "nb_chambre", nullable = false)
-    private int nbChambre;
+    @Column(name = "nb_chambre")
+    private Integer nbChambre;
+
+    // Additional Maison-specific fields and methods can be added here
 }

@@ -1,4 +1,4 @@
-package com.tekup.gestionimmobil.web.Controllers;
+package com.tekup.gestionimmobil.web.controllers;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;

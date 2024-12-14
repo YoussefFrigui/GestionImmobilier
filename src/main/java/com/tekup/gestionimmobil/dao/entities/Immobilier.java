@@ -6,64 +6,32 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "immobiliers")
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "type")
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Setter
-@Getter
-
-
-public abstract class Immobilier {
+public class Immobilier {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "prix", nullable = false)
-    private int prix;
-
-    @Column(name = "ville", nullable = false)
-    private String ville;
-
-    @Column(name = "delegation", nullable = false)
-    private String delegation;
-
-    @Column(name = "surface", nullable = false)
-    private int surface;
-
-    @Column(name = "contact", nullable = false)
-    private String contact;
-
-    @Column(name = "description", nullable = false)
     private String description;
-
-    public enum Etat {
-        A_VENDRE("A vendre"),
-        A_LOUER("A louer");
-
-        private final String displayName;
-
-        Etat(String displayName) {
-            this.displayName = displayName;
-        }
-
-        public String getDisplayName() {
-            return displayName;
-        }
-    }
-
-    @Column(name = "etat", nullable = false)
+    private double prix;
+    private String ville;
+    private String delegation;
+    private double surface;
+    private String contact;
     private String etat;
+    private String type;
 
+    // List of photo paths
     @ElementCollection
     @CollectionTable(name = "immobilier_photos", joinColumns = @JoinColumn(name = "immobilier_id"))
-    @Column(name = "photo")
-    private List<String> photos = new ArrayList<>();
-
-    }
+    @Column(name = "photo_path")
+    private List<String> photoPaths;
+}
