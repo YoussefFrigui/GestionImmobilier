@@ -10,4 +10,5 @@ public interface ImmobilierService {
     Optional<Immobilier> findById(Long id);
     Immobilier save(Immobilier immobilier);
     void deleteById(Long id);
+    
 }

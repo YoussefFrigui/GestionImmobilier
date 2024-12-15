@@ -23,27 +23,32 @@
 <body>
     <div th:replace="fragments/header :: header"></div>
     <div class="container">
-        <form th:action="${immobilier.id == null} ? @{/admin/immobiliers/add} : @{/admin/immobiliers/edit/{id}(id=${immobilier.id})}" 
-              th:object="${immobilier}" 
-              method="post" 
-              enctype="multipart/form-data">
+        <form th:action="${immobilier.id == null ? @{/admin/immobiliers/add} : @{/admin/immobiliers/edit/{id}(id=${immobilier.id})}" 
+              th:object="${immobilier}" method="post" enctype="multipart/form-data">
             
-            <!-- Hidden ID Field -->
-            <input type="hidden" th:field="*{id}" />
-
-            <!-- Description Field -->
+            <!-- Type Field -->
             <div class="form-group">
-                <label for="description">Description:</label>
-                <input type="text" class="form-control" id="description" th:field="*{description}" required />
+                <label for="type">Type:</label>
+                <select id="type" th:field="*{type}" class="form-control" onchange="toggleTypeFields()" required>
+                    <option value="" disabled selected>-- Select Type --</option>
+                    <option value="Maison">Maison</option>
+                    <option value="Terrain">Terrain</option>
+                </select>
             </div>
 
-            <!-- Price Field -->
+            <!-- Maison Specific Fields -->
+            <div class="form-group" id="maisonFields" style="display:none;">
+                <label for="nbChambre">Nombre de Chambres:</label>
+                <input type="number" class="form-control" id="nbChambre" th:field="*{nbChambre}" />
+            </div>
+
+            <!-- Prix Field -->
             <div class="form-group">
                 <label for="prix">Prix:</label>
                 <input type="number" step="0.01" class="form-control" id="prix" th:field="*{prix}" required />
             </div>
 
-            <!-- City Field -->
+            <!-- Ville Field -->
             <div class="form-group">
                 <label for="ville">Ville:</label>
                 <input type="text" class="form-control" id="ville" th:field="*{ville}" required />
@@ -70,38 +75,23 @@
             <!-- Etat Field -->
             <div class="form-group">
                 <label for="etat">Etat:</label>
-                <input type="text" class="form-control" id="etat" th:field="*{etat}" required />
-            </div>
-
-            <!-- Type Field -->
-            <div class="form-group">
-                <label for="type">Type:</label>
-                <select class="form-control" id="type" th:field="*{type}" onchange="toggleTypeFields()" required>
-                    <option value="">Select Type</option>
-                    <option value="Maison">Maison</option>
-                    <option value="Terrain">Terrain</option>
-                    <!-- Add other types as needed -->
+                <select id="etat" th:field="*{etat}" class="form-control" required>
+                    <option value="" disabled selected>-- Select Etat --</option>
+                    <option value="Good">Good</option>
+                    <option value="Average">Average</option>
+                    <option value="Poor">Poor</option>
                 </select>
             </div>
 
-            <!-- Maison-Specific Fields -->
-            <div id="maisonFields" style="display: none;">
-                <div class="form-group">
-                    <label for="nbChambre">Nombre de Chambres:</label>
-                    <input type="number" class="form-control" id="nbChambre" th:field="*{nbChambre}" />
-                </div>
-                <!-- Add other maison-specific fields as needed -->
-            </div>
-
-            <!-- Photos Upload Field -->
+            <!-- Photos Field -->
             <div class="form-group">
                 <label for="photos">Photos:</label>
-                <input type="file" class="form-control-file" id="photos" name="photos" multiple />
+                <input type="file" class="form-control" id="photos" th:field="*{photoPaths}" multiple />
             </div>
 
-            <!-- Submit Button -->
-            <button type="submit" class="btn btn-primary" th:text="${immobilier.id == null ? 'Add' : 'Update'}">Submit</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
+    <div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

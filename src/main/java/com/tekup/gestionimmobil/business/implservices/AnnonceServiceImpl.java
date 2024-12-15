@@ -5,6 +5,9 @@ import com.tekup.gestionimmobil.dao.entities.Annonce;
 import com.tekup.gestionimmobil.dao.entities.Annonce.EtatAnnonce;
 import com.tekup.gestionimmobil.dao.repositories.AnnonceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,5 +42,16 @@ public class AnnonceServiceImpl implements AnnonceService {
     @Override
     public List<Annonce> findByEtatAnnonce(EtatAnnonce etatAnnonce) {
         return annonceRepository.findByEtatAnnonce(etatAnnonce);
+    }
+
+    @Override
+    public Page<Annonce> findPaginated(int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        return annonceRepository.findAll(pageable);
+    }
+
+    @Override
+    public Page<Annonce> findByVilleContainingOrDelegationContaining(String ville, String delegation, Pageable pageable) {
+        return annonceRepository.findByImmobilier_VilleContainingOrImmobilier_DelegationContaining(ville, delegation, pageable);
     }
 }

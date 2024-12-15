@@ -9,9 +9,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Admin extends User {
+public class Admin   {
 
     public Admin(Long cin, String nom, String prenom, String email, String password) {
-        super(cin, nom, prenom, email, password, "admin");
+        
     }
 }
