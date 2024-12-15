@@ -2,71 +2,69 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Edit Annonce'">Annonce Form</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <title>Add Annonce</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div th:replace="fragments/header :: header"></div>
-    <div class="container">
-        <h1 th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Edit Annonce'"></h1>
-        <div>
-            <a th:href="@{/admin/annonces}">Back to Annonces</a>
-        </div>
-        <br>
-        <form th:action="${annonceForm.id} == null ? @{/admin/annonces/add} : @{/admin/annonces/edit/{id}(id=${annonceForm.id})}" 
+    <div class="container mt-5">
+        <!-- Messages -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        
+        <h1>Add Annonce</h1>
+        
+        <form th:action="@{/admin/annonces/add}" 
               th:object="${annonceForm}" 
-              method="post">
+              method="post"
+              class="needs-validation" novalidate>
             
-            <!-- Select Immobilier -->
+            <!-- Immobilier Selection -->
             <div class="form-group">
-                <label for="immobilierId">Immobilier</label>
-                <select id="immobilierId" th:field="*{immobilierId}" class="form-control" required>
-                    <option value="" disabled selected>-- Select Immobilier --</option>
-                    <option th:each="immobilier : ${immobiliers}" 
-                            th:value="${immobilier.id}" 
-                            th:text="${immobilier.description}"></option>
+                <label for="immobilierId">Select Immobilier</label>
+                <select class="form-control" id="immobilierId" th:field="*{immobilierId}" required>
+                    <option value="">-- Select Immobilier --</option>
+                    <option th:each="immobilier : ${immobiliers}"
+                            th:value="${immobilier.id}"
+                            th:text="${immobilier.description + ' - ' + immobilier.ville}">
+                    </option>
                 </select>
-                <span th:if="${#fields.hasErrors('immobilierId')}" 
-                      th:errors="*{immobilierId}" 
-                      class="error">Immobilier Error</span>
+                <div class="invalid-feedback">Please select an immobilier</div>
             </div>
-            
-            <!-- Date -->
-            <div class="form-group">
-                <label for="date">Date</label>
-                <input type="date" id="date" 
-                       th:field="*{date}" 
-                       class="form-control" 
-                       required />
-                <span th:if="${#fields.hasErrors('date')}" 
-                      th:errors="*{date}" 
-                      class="error">Date Error</span>
-            </div>
-            
-            <!-- Etat Annonce -->
+
+            <!-- Etat Annonce Selection -->
             <div class="form-group">
                 <label for="etatAnnonce">Etat Annonce</label>
-                <select id="etatAnnonce" th:field="*{etatAnnonce}" class="form-control" required>
-                    <option value="" disabled selected>-- Select Etat Annonce --</option>
-                    <option value="DISPO">Dispo</option>
-                    <option value="INDISPO">Indispo</option>
+                <select class="form-control" id="etatAnnonce" th:field="*{etatAnnonce}" required>
+                    <option th:each="etat : ${T(com.tekup.gestionimmobil.dao.entities.Annonce.EtatAnnonce).values()}"
+                            th:value="${etat}"
+                            th:text="${etat.displayName}">
+                    </option>
                 </select>
-                <span th:if="${#fields.hasErrors('etatAnnonce')}" 
-                      th:errors="*{etatAnnonce}" 
-                      class="error">Etat Annonce Error</span>
+                <div class="invalid-feedback">Please select an etat</div>
             </div>
-            
-            <!-- Submit Button -->
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary" 
-                        th:text="${annonceForm.id} == null ? 'Add Annonce' : 'Update Annonce'"></button>
-            </div>
-            
-            <!-- General Error Message -->
-            <div th:if="${error}" class="error">
-                <p th:text="${error}"></p>
-            </div>
+
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/admin/annonces}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
+
+    <script>
+    // Form validation
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+    </script>
 </body>
 </html>

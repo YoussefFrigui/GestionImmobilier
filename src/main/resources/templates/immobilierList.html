@@ -3,14 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Immobilier List</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
     <div th:replace="fragments/header :: header"></div>
     <div class="container">
-        <h1>Immobilier List</h1>
         <div th:if="${isAdmin}">
-            <a th:href="@{/admin/immobiliers/new}">Add New Immobilier</a>
+            <a th:href="@{/admin/immobiliers/new}" class="btn btn-success">Add New Immobilier</a>
         </div>
         <br>
         <table class="table">
@@ -34,8 +33,8 @@
                     <td th:text="${immobilier.ville}">City</td>
                     <td th:text="${immobilier.delegation}">Delegation</td>
                     <td th:text="${immobilier.surface}">50</td>
-                    <td th:text="${immobilier.contact}">123456789</td>
-                    <td th:text="${immobilier.etat}">Good</td>
+                    <td th:text="${immobilier.contact}">Contact</td>
+                    <td th:text="${immobilier.etat}">Etat</td>
                     <td>
                         <ul>
                             <li th:each="photo : ${immobilier.photoPaths}">
@@ -44,12 +43,14 @@
                         </ul>
                     </td>
                     <td th:if="${isAdmin}">
-                        <a th:href="@{'/admin/immobiliers/edit/' + ${immobilier.id}}">Edit</a>
-                        <!-- Add delete functionality as needed -->
+                        <a th:href="@{/admin/immobiliers/edit/{id}(id=${immobilier.id})}" class="btn btn-primary btn-sm">Edit</a> |
+                        <a th:href="@{/admin/immobiliers/delete/{id}(id=${immobilier.id})}" class="btn btn-danger btn-sm" 
+                           onclick="return confirm('Are you sure?')">Delete</a>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+    <div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

@@ -2,96 +2,169 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${immobilier.id == null ? 'Add Immobilier' : 'Edit Immobilier'}">Immobilier Form</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
-    <script>
-        function toggleTypeFields() {
-            var type = document.getElementById("type").value;
-            var maisonFields = document.getElementById("maisonFields");
-            if (type === "Maison") {
-                maisonFields.style.display = "block";
-            } else {
-                maisonFields.style.display = "none";
-            }
-        }
-
-        window.onload = function() {
-            toggleTypeFields();
-        };
-    </script>
+    <title>Add Immobilier</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div th:replace="fragments/header :: header"></div>
-    <div class="container">
-        <form th:action="${immobilier.id == null ? @{/admin/immobiliers/add} : @{/admin/immobiliers/edit/{id}(id=${immobilier.id})}" 
-              th:object="${immobilier}" method="post" enctype="multipart/form-data">
+    <div class="container mt-5">
+        <!-- Messages -->
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        
+        <h1>Add Immobilier</h1>
+        
+        <form th:action="@{/admin/immobiliers/add}" 
+              th:object="${immobilierForm}" 
+              method="post" 
+              enctype="multipart/form-data"
+              class="needs-validation" novalidate>
             
-            <!-- Type Field -->
+            <!-- Description -->
             <div class="form-group">
-                <label for="type">Type:</label>
-                <select id="type" th:field="*{type}" class="form-control" onchange="toggleTypeFields()" required>
-                    <option value="" disabled selected>-- Select Type --</option>
+                <label for="description">Description</label>
+                <textarea class="form-control" id="description" th:field="*{description}" rows="3" required></textarea>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}">
+                    Description is required
+                </div>
+            </div>
+
+            <!-- Prix -->
+            <div class="form-group">
+                <label for="prix">Prix</label>
+                <input type="number" class="form-control" id="prix" th:field="*{prix}" min="0" step="0.01" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('prix')}" th:errors="*{prix}">
+                    Prix must be positive
+                </div>
+            </div>
+
+            <!-- Ville -->
+            <div class="form-group">
+                <label for="ville">Ville</label>
+                <input type="text" class="form-control" id="ville" th:field="*{ville}" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('ville')}" th:errors="*{ville}">
+                    Ville is required
+                </div>
+            </div>
+
+            <!-- Delegation -->
+            <div class="form-group">
+                <label for="delegation">Delegation</label>
+                <select class="form-control" id="delegation" th:field="*{delegation}" required>
+                    <option value="">Select delegation</option>
+                    <option th:each="del : ${T(com.tekup.gestionimmobil.dao.entities.Immobilier.Delegation).values()}"
+                            th:value="${del}"
+                            th:text="${del.displayName}">
+                    </option>
+                </select>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('delegation')}" th:errors="*{delegation}">
+                    Delegation is required
+                </div>
+            </div>
+
+            <!-- Surface -->
+            <div class="form-group">
+                <label for="surface">Surface (m²)</label>
+                <input type="number" class="form-control" id="surface" th:field="*{surface}" min="0" step="0.01" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('surface')}" th:errors="*{surface}">
+                    Surface must be positive
+                </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="form-group">
+                <label for="contact">Contact</label>
+                <input type="text" class="form-control" id="contact" th:field="*{contact}" required>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('contact')}" th:errors="*{contact}">
+                    Contact is required
+                </div>
+            </div>
+
+            <!-- Etat -->
+            <div class="form-group">
+                <label for="etat">Etat</label>
+                <select class="form-control" id="etat" th:field="*{etat}" required>
+                    <option value="">Select etat</option>
+                    <option th:each="etatOption : ${T(com.tekup.gestionimmobil.dao.entities.Immobilier.Etat).values()}"
+                            th:value="${etatOption}"
+                            th:text="${etatOption.displayName}">
+                    </option>
+                </select>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('etat')}" th:errors="*{etat}">
+                    Etat is required
+                </div>
+            </div>
+
+            <!-- Type -->
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select class="form-control" id="type" th:field="*{type}" required>
+                    <option value="">Select type</option>
                     <option value="Maison">Maison</option>
                     <option value="Terrain">Terrain</option>
                 </select>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('type')}" th:errors="*{type}">
+                    Type is required
+                </div>
             </div>
 
-            <!-- Maison Specific Fields -->
-            <div class="form-group" id="maisonFields" style="display:none;">
-                <label for="nbChambre">Nombre de Chambres:</label>
-                <input type="number" class="form-control" id="nbChambre" th:field="*{nbChambre}" />
+            <!-- Nombre de Chambres (visible only for Maison) -->
+            <div class="form-group" id="nbChambreGroup" style="display: none;">
+                <label for="nbChambre">Nombre de Chambres</label>
+                <input type="number" class="form-control" id="nbChambre" th:field="*{nbChambre}" min="1">
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('nbChambre')}" th:errors="*{nbChambre}">
+                    Number of rooms must be positive
+                </div>
             </div>
 
-            <!-- Prix Field -->
+            <!-- Photos -->
             <div class="form-group">
-                <label for="prix">Prix:</label>
-                <input type="number" step="0.01" class="form-control" id="prix" th:field="*{prix}" required />
+                <label for="photos">Photos</label>
+                <input type="file" class="form-control-file" id="photos" name="photos" multiple accept="image/*">
+                <small class="form-text text-muted">Select one or more images (max 5MB each)</small>
             </div>
 
-            <!-- Ville Field -->
-            <div class="form-group">
-                <label for="ville">Ville:</label>
-                <input type="text" class="form-control" id="ville" th:field="*{ville}" required />
-            </div>
-
-            <!-- Delegation Field -->
-            <div class="form-group">
-                <label for="delegation">Delegation:</label>
-                <input type="text" class="form-control" id="delegation" th:field="*{delegation}" required />
-            </div>
-
-            <!-- Surface Field -->
-            <div class="form-group">
-                <label for="surface">Surface:</label>
-                <input type="number" step="0.01" class="form-control" id="surface" th:field="*{surface}" required />
-            </div>
-
-            <!-- Contact Field -->
-            <div class="form-group">
-                <label for="contact">Contact:</label>
-                <input type="text" class="form-control" id="contact" th:field="*{contact}" required />
-            </div>
-
-            <!-- Etat Field -->
-            <div class="form-group">
-                <label for="etat">Etat:</label>
-                <select id="etat" th:field="*{etat}" class="form-control" required>
-                    <option value="" disabled selected>-- Select Etat --</option>
-                    <option value="Good">Good</option>
-                    <option value="Average">Average</option>
-                    <option value="Poor">Poor</option>
-                </select>
-            </div>
-
-            <!-- Photos Field -->
-            <div class="form-group">
-                <label for="photos">Photos:</label>
-                <input type="file" class="form-control" id="photos" th:field="*{photoPaths}" multiple />
-            </div>
-
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a th:href="@{/admin/immobiliers}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
-    <div th:replace="fragments/footer :: footer"></div>
+
+    <script>
+        // Form validation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the form
+            const form = document.querySelector('.needs-validation');
+            
+            // Get type select and nbChambre group
+            const typeSelect = document.getElementById('type');
+            const nbChambreGroup = document.getElementById('nbChambreGroup');
+            
+            // Handle type change
+            typeSelect.addEventListener('change', function() {
+                if (this.value === 'Maison') {
+                    nbChambreGroup.style.display = 'block';
+                    document.getElementById('nbChambre').required = true;
+                } else {
+                    nbChambreGroup.style.display = 'none';
+                    document.getElementById('nbChambre').required = false;
+                }
+            });
+
+            // Handle form validation
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            });
+
+            // Initialize type select (in case of edit)
+            if (typeSelect.value === 'Maison') {
+                nbChambreGroup.style.display = 'block';
+                document.getElementById('nbChambre').required = true;
+            }
+        });
+    </script>
 </body>
 </html>

@@ -2,24 +2,25 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Annonces</title>
-    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <title>Manage Annonces</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <div th:replace="fragments/header :: header"></div>
-    <div class="container">
-        <h1>Admin - Manage Annonces</h1>
-        <div>
-            <a th:href="@{/admin/annonces/add}">Add New Annonce</a>
-        </div>
-        <br>
+    <div class="container mt-5">
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <h1>Manage Annonces</h1>
+        
+        <a th:href="@{/admin/annonces/add}" class="btn btn-primary mb-3">Add New Annonce</a>
+
         <table class="table">
             <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Immobilier Description</th>
+                    <th>Immobilier</th>
                     <th>Date</th>
-                    <th>Etat Announce</th>
+                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -27,17 +28,19 @@
                 <tr th:each="annonce : ${annonces}">
                     <td th:text="${annonce.id}"></td>
                     <td th:text="${annonce.immobilier.description}"></td>
-                    <td th:text="${#dates.format(annonce.date, 'yyyy-MM-dd')}"></td>
+                    <td th:text="${#dates.format(annonce.date, 'dd-MM-yyyy')}"></td>
                     <td th:text="${annonce.etatAnnonce.displayName}"></td>
                     <td>
-                        <a th:href="@{/admin/annonces/edit/{id}(id=${annonce.id})}">Edit</a> |
-                        <form th:action="@{/admin/annonces/toggle/{id}(id=${annonce.id})}" method="post" style="display:inline;">
-                            <button type="submit" th:text="${annonce.etatAnnonce == T(com.tekup.gestionimmobil.dao.entities.Annonce.EtatAnnonce).DISPO ? 'Set Indispo' : 'Set Dispo'}" 
-                                    class="btn btn-link"></button>
-                        </form> |
-                        <form th:action="@{/admin/annonces/delete/{id}(id=${annonce.id})}" method="post" style="display:inline;" 
-                              onsubmit="return confirm('Are you sure you want to delete this Annonce?');">
-                            <button type="submit" class="btn btn-link">Delete</button>
+                        <form th:action="@{/admin/annonces/toggle/{id}(id=${annonce.id})}" 
+                              method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-warning">
+                                <span th:text="${annonce.etatAnnonce.name() == 'DISPO' ? 'Set Indispo' : 'Set Dispo'}"></span>
+                            </button>
+                        </form>
+                        <form th:action="@{/admin/annonces/delete/{id}(id=${annonce.id})}" 
+                              method="post" style="display: inline;"
+                              onsubmit="return confirm('Are you sure you want to delete this annonce?');">
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>

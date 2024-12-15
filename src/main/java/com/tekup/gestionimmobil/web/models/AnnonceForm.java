@@ -1,15 +1,18 @@
 package com.tekup.gestionimmobil.web.models;
 
+import com.tekup.gestionimmobil.dao.entities.Annonce.EtatAnnonce;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
 public class AnnonceForm {
     private Long id;
-    private Long immobilierId; // Reference to the Immobilier
-    private Date date;
-    private String etatAnnonce; // Should match the enum names: DISPO, INDISPO
+    
+    @NotNull(message = "Please select an immobilier")
+    private Long immobilierId;
+    
+    @NotNull(message = "Please select an etat")
+    private EtatAnnonce etatAnnonce;
 }

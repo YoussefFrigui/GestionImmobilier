@@ -5,202 +5,230 @@ import com.tekup.gestionimmobil.dao.entities.Immobilier;
 import com.tekup.gestionimmobil.dao.entities.Maison;
 import com.tekup.gestionimmobil.dao.entities.Terrain;
 import com.tekup.gestionimmobil.web.models.ImmobilierForm;
-
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
-@RequestMapping("/admin/immobiliers") // Ensure base mapping is /admin/immobiliers
+@RequestMapping("/admin/immobiliers")
 public class ImmobilierController {
 
     @Autowired
     private ImmobilierService immobilierService;
 
     private static final String UPLOAD_DIR = "uploads/";
+    private static final long MAX_FILE_SIZE = 5_242_880L; // 5MB
 
-    // Constructor to create upload directory if it doesn't exist
     public ImmobilierController() {
-        Path uploadPath = Paths.get(UPLOAD_DIR);
-        if (!Files.exists(uploadPath)) {
-            try {
+        createUploadDirectory();
+    }
+
+    private void createUploadDirectory() {
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                // Consider logging and handling this exception more gracefully
             }
+        } catch (IOException e) {
+            throw new RuntimeException("Could not create upload directory", e);
         }
     }
 
-    /**
-     * Display all Immobiliers
-     */
     @GetMapping
     public String getAllImmobiliers(Model model) {
         model.addAttribute("immobiliers", immobilierService.findAll());
-        return "immobilierList"; // Ensure this template exists
+        model.addAttribute("isAdmin", true);
+        return "immobilierList";
     }
 
-    /**
-     * Show form to add a new Immobilier
-     */
     @GetMapping("/add")
-    public String showAddImmobilierForm(Model model) {
-        ImmobilierForm immobilierForm = new ImmobilierForm();
-        model.addAttribute("immobilier", immobilierForm); // Consistent attribute name
-        return "AjoutImmobilier"; // Ensure this template exists
+public String showAddImmobilierForm(Model model) {
+    if (!model.containsAttribute("immobilierForm")) {
+        ImmobilierForm form = new ImmobilierForm();
+        form.setEtat(Immobilier.Etat.A_VENDRE);
+        model.addAttribute("immobilierForm", form);
     }
+    return "AjoutImmobilier";
+}
 
-    /**
-     * Handle form submission for creating Immobilier
-     */
     @PostMapping("/add")
-    public String createImmobilier(@ModelAttribute("immobilier") ImmobilierForm immobilierForm) {
-        Immobilier immobilier;
-
-        if ("Maison".equalsIgnoreCase(immobilierForm.getType())) {
-            immobilier = new Maison();
-            ((Maison) immobilier).setNbChambre(immobilierForm.getNbChambre());
-            // Set other Maison-specific fields if any
-        } else if ("Terrain".equalsIgnoreCase(immobilierForm.getType())) {
-            immobilier = new Terrain();
-            // Set Terrain-specific fields if any
-        } else {
-            throw new IllegalArgumentException("Unknown type: " + immobilierForm.getType());
+    public String createImmobilier(
+            @Valid @ModelAttribute("immobilierForm") ImmobilierForm form,
+            BindingResult result,
+            RedirectAttributes redirectAttributes,
+            Model model) {
+        
+        if (result.hasErrors()) {
+            model.addAttribute("errorMessage", "Please correct the form errors");
+            return "AjoutImmobilier";
         }
 
-        // Set common fields
-        immobilier.setPrix(immobilierForm.getPrix());
-        immobilier.setVille(immobilierForm.getVille());
-        immobilier.setDelegation(immobilierForm.getDelegation());
-        immobilier.setDescription(immobilierForm.getDescription());
-        immobilier.setSurface(immobilierForm.getSurface());
-        immobilier.setContact(immobilierForm.getContact());
-        immobilier.setEtat(immobilierForm.getEtat());
-        immobilier.setType(immobilierForm.getType());
-
-        // Handle multiple file uploads
-        if (immobilierForm.getPhotos() != null && !immobilierForm.getPhotos().isEmpty()) {
-            for (MultipartFile photo : immobilierForm.getPhotos()) {
-                if (!photo.isEmpty()) {
-                    try {
-                        String filename = System.currentTimeMillis() + "_" + 
-                                           Paths.get(photo.getOriginalFilename()).getFileName().toString();
-                        Path path = Paths.get(UPLOAD_DIR + filename);
-                        Files.createDirectories(path.getParent());
-                        Files.write(path, photo.getBytes());
-                        immobilier.getPhotoPaths().add("/uploads/" + filename); // Adjust path as needed
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        // Optional: Add proper error handling, e.g., redirect with error message
-                    }
-                }
-            }
+        try {
+            validatePhotos(form.getPhotos());
+            Immobilier immobilier = createImmobilierFromForm(form);
+            handleFileUploads(form.getPhotos(), immobilier);
+            immobilierService.save(immobilier);
+            redirectAttributes.addFlashAttribute("successMessage", "Property added successfully");
+            return "redirect:/admin/immobiliers";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "AjoutImmobilier";
         }
-
-        immobilierService.save(immobilier);
-        return "redirect:/admin/immobiliers"; // Redirect to the list page
     }
 
-    /**
-     * Show form to edit an existing Immobilier
-     */
     @GetMapping("/edit/{id}")
     public String showEditImmobilierForm(@PathVariable Long id, Model model) {
-        Optional<Immobilier> optImmobilier = immobilierService.findById(id);
-        if (optImmobilier.isPresent()) {
-            Immobilier existingImmobilier = optImmobilier.get();
-            ImmobilierForm immobilierForm = new ImmobilierForm();
-            immobilierForm.setId(existingImmobilier.getId());
-            immobilierForm.setPrix(existingImmobilier.getPrix());
-            immobilierForm.setVille(existingImmobilier.getVille());
-            immobilierForm.setDelegation(existingImmobilier.getDelegation());
-            immobilierForm.setDescription(existingImmobilier.getDescription());
-            immobilierForm.setSurface(existingImmobilier.getSurface());
-            immobilierForm.setContact(existingImmobilier.getContact());
-            immobilierForm.setEtat(existingImmobilier.getEtat());
-            immobilierForm.setType(existingImmobilier.getType());
+        Optional<Immobilier> immobilier = immobilierService.findById(id);
+        if (immobilier.isPresent()) {
+            model.addAttribute("immobilierForm", convertToForm(immobilier.get()));
+            return "AjoutImmobilier";
+        }
+        return "redirect:/admin/immobiliers";
+    }
 
-            if (existingImmobilier instanceof Maison) {
-                Maison maison = (Maison) existingImmobilier;
-                immobilierForm.setNbChambre(maison.getNbChambre());
-                // Set other Maison-specific fields if any
-            } else if (existingImmobilier instanceof Terrain) {
-                // Set Terrain-specific fields if any
+    @PostMapping("/edit/{id}")
+    public String updateImmobilier(@PathVariable Long id,
+                                 @Valid @ModelAttribute("immobilierForm") ImmobilierForm form,
+                                 BindingResult result,
+                                 RedirectAttributes redirectAttributes,
+                                 Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("errorMessage", "Please correct the form errors");
+            return "AjoutImmobilier";
+        }
+
+        try {
+            Optional<Immobilier> optionalImmobilier = immobilierService.findById(id);
+            if (!optionalImmobilier.isPresent()) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Immobilier not found");
+                return "redirect:/admin/immobiliers";
             }
 
-            model.addAttribute("immobilier", immobilierForm); // Consistent attribute name
-            return "AjoutImmobilier"; // Reuse the same form for editing
-        } else {
-            return "redirect:/admin/immobiliers"; // Redirect if not found
+            Immobilier existingImmobilier = optionalImmobilier.get();
+            validatePhotos(form.getPhotos());
+            updateImmobilierFromForm(existingImmobilier, form);
+            handleFileUploads(form.getPhotos(), existingImmobilier);
+            immobilierService.save(existingImmobilier);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Property updated successfully");
+            return "redirect:/admin/immobiliers";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            return "AjoutImmobilier";
         }
     }
 
-    /**
-     * Handle form submission for updating Immobilier
-     */
-    @PostMapping("/edit/{id}")
-    public String updateImmobilier(@PathVariable Long id, @ModelAttribute("immobilier") ImmobilierForm immobilierForm) {
-        Optional<Immobilier> optImmobilier = immobilierService.findById(id);
-        if (optImmobilier.isPresent()) {
-            Immobilier updatedImmobilier = optImmobilier.get();
-            updatedImmobilier.setPrix(immobilierForm.getPrix());
-            updatedImmobilier.setVille(immobilierForm.getVille());
-            updatedImmobilier.setDelegation(immobilierForm.getDelegation());
-            updatedImmobilier.setDescription(immobilierForm.getDescription());
-            updatedImmobilier.setSurface(immobilierForm.getSurface());
-            updatedImmobilier.setContact(immobilierForm.getContact());
-            updatedImmobilier.setEtat(immobilierForm.getEtat());
-            updatedImmobilier.setType(immobilierForm.getType());
+    @PostMapping("/delete/{id}")
+    public String deleteImmobilier(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            immobilierService.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Property deleted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting property: " + e.getMessage());
+        }
+        return "redirect:/admin/immobiliers";
+    }
 
-            if (updatedImmobilier instanceof Maison) {
-                Maison maison = (Maison) updatedImmobilier;
-                maison.setNbChambre(immobilierForm.getNbChambre());
-                // Update other Maison-specific fields if any
-            } else if (updatedImmobilier instanceof Terrain) {
-                // Update Terrain-specific fields if any
-            }
-
-            // Handle multiple file uploads
-            if (immobilierForm.getPhotos() != null && !immobilierForm.getPhotos().isEmpty()) {
-                for (MultipartFile photo : immobilierForm.getPhotos()) {
-                    if (!photo.isEmpty()) {
-                        try {
-                            String filename = System.currentTimeMillis() + "_" + 
-                                               Paths.get(photo.getOriginalFilename()).getFileName().toString();
-                            Path path = Paths.get(UPLOAD_DIR + filename);
-                            Files.createDirectories(path.getParent());
-                            Files.write(path, photo.getBytes());
-                            updatedImmobilier.getPhotoPaths().add("/uploads/" + filename); // Adjust path as needed
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            // Optional: Add proper error handling, e.g., redirect with error message
-                        }
+    private void validatePhotos(List<MultipartFile> photos) throws Exception {
+        if (photos != null) {
+            for (MultipartFile photo : photos) {
+                if (!photo.isEmpty()) {
+                    String contentType = photo.getContentType();
+                    if (contentType == null || !contentType.startsWith("image/")) {
+                        throw new IllegalArgumentException("Invalid file type. Only images are allowed.");
+                    }
+                    if (photo.getSize() > MAX_FILE_SIZE) {
+                        throw new IllegalArgumentException("File size too large. Maximum size is 5MB.");
                     }
                 }
             }
-
-            immobilierService.save(updatedImmobilier);
-            return "redirect:/admin/immobiliers"; // Redirect to the list page
-        } else {
-            return "redirect:/admin/immobiliers"; // Redirect if not found
         }
     }
 
-    /**
-     * Handle deletion of Immobilier
-     */
-    @PostMapping("/delete/{id}")
-    public String deleteImmobilier(@PathVariable Long id) {
-        immobilierService.deleteById(id);
-        return "redirect:/admin/immobiliers"; // Redirect to the list page
+    private Immobilier createImmobilierFromForm(ImmobilierForm form) {
+        Immobilier immobilier;
+        if ("Maison".equals(form.getType())) {
+            Maison maison = new Maison();
+            maison.setNbChambre(form.getNbChambre());
+            immobilier = maison;
+        } else {
+            immobilier = new Terrain();
+        }
+
+        updateImmobilierFromForm(immobilier, form);
+        return immobilier;
     }
 
-    // Additional controller methods as needed...
+    private void updateImmobilierFromForm(Immobilier immobilier, ImmobilierForm form) {
+        immobilier.setDescription(form.getDescription());
+        immobilier.setPrix(form.getPrix());
+        immobilier.setVille(form.getVille());
+        immobilier.setDelegation(form.getDelegation());
+        immobilier.setSurface(form.getSurface());
+        immobilier.setContact(form.getContact());
+        immobilier.setEtat(form.getEtat());
+        immobilier.setType(form.getType());
+
+        if (immobilier instanceof Maison && "Maison".equals(form.getType())) {
+            ((Maison) immobilier).setNbChambre(form.getNbChambre());
+        }
+    }
+
+    private void handleFileUploads(List<MultipartFile> photos, Immobilier immobilier) throws IOException {
+        if (photos == null || photos.isEmpty()) {
+            return;
+        }
+
+        List<String> photoPaths = immobilier.getPhotoPaths();
+        if (photoPaths == null) {
+            photoPaths = new ArrayList<>();
+            immobilier.setPhotoPaths(photoPaths);
+        }
+
+        for (MultipartFile photo : photos) {
+            if (!photo.isEmpty()) {
+                String fileName = generateUniqueFileName(photo.getOriginalFilename());
+                Path filePath = Paths.get(UPLOAD_DIR, fileName);
+                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                photoPaths.add("/uploads/" + fileName);
+            }
+        }
+    }
+
+    private ImmobilierForm convertToForm(Immobilier immobilier) {
+        ImmobilierForm form = new ImmobilierForm();
+        form.setId(immobilier.getId());
+        form.setDescription(immobilier.getDescription());
+        form.setPrix(immobilier.getPrix());
+        form.setVille(immobilier.getVille());
+        form.setDelegation(immobilier.getDelegation());
+        form.setSurface(immobilier.getSurface());
+        form.setContact(immobilier.getContact());
+        form.setEtat(immobilier.getEtat());
+        form.setType(immobilier.getType());
+
+        if (immobilier instanceof Maison) {
+            form.setNbChambre(((Maison) immobilier).getNbChambre());
+        }
+
+        return form;
+    }
+
+    private String generateUniqueFileName(String originalFilename) {
+        String extension = StringUtils.getFilenameExtension(originalFilename);
+        return UUID.randomUUID().toString() + "." + extension;
+    }
 }

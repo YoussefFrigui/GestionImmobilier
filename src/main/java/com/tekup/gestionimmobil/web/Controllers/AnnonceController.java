@@ -6,16 +6,19 @@ import com.tekup.gestionimmobil.dao.entities.Immobilier;
 import com.tekup.gestionimmobil.business.services.AnnonceService;
 import com.tekup.gestionimmobil.business.services.ImmobilierService;
 import com.tekup.gestionimmobil.web.models.AnnonceForm;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.validation.BindingResult;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 @Controller
 @RequestMapping("/admin/annonces")
 public class AnnonceController {
@@ -26,163 +29,99 @@ public class AnnonceController {
     @Autowired
     private ImmobilierService immobilierService;
 
-    /**
-     * Display the form to add a new Annonce
-     */
-    @GetMapping("/add")
-    public String showAddForm(Model model) {
-        AnnonceForm annonceForm = new AnnonceForm();
-        annonceForm.setDate(new Date());
-        annonceForm.setEtatAnnonce(EtatAnnonce.DISPO.name());
-        model.addAttribute("annonceForm", annonceForm);
-
-        List<Immobilier> immobiliers = immobilierService.findAll();
-        model.addAttribute("immobiliers", immobiliers);
-
-        return "AjoutAnnonce";
-    }
-
-    /**
-     * Handle the submission of a new Annonce
-     */
-    @PostMapping("/add")
-    public String addAnnonce(@ModelAttribute("annonceForm") AnnonceForm annonceForm,
-                             BindingResult bindingResult,
-                             Model model) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("error", "Please correct the errors in the form.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
-
-        Optional<Immobilier> optImmobilier = immobilierService.findById(annonceForm.getImmobilierId());
-        if (!optImmobilier.isPresent()) {
-            model.addAttribute("error", "Selected Immobilier does not exist.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
-
-        Annonce annonce = new Annonce();
-        annonce.setImmobilier(optImmobilier.get());
-        annonce.setDate(annonceForm.getDate());
-        try {
-            annonce.setEtatAnnonce(EtatAnnonce.valueOf(annonceForm.getEtatAnnonce()));
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", "Invalid Etat Annonce selected.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
-
-        annonceService.save(annonce);
-        return "redirect:/admin/annonces";
-    }
-
-    /**
-     * List all Annonces for Admin
-     */
     @GetMapping
     public String listAnnonces(Model model) {
-        List<Annonce> annonces = annonceService.findAll();
-        model.addAttribute("annonces", annonces);
+        model.addAttribute("annonces", annonceService.findAll());
         return "adminAnnonces";
     }
 
-    /**
-     * Show Edit Annonce Form
-     */
+    @GetMapping("/add")
+    public String showAddForm(Model model) {
+        if (!model.containsAttribute("annonceForm")) {
+            AnnonceForm form = new AnnonceForm();
+            form.setEtatAnnonce(EtatAnnonce.DISPO);
+            model.addAttribute("annonceForm", form);
+        }
+        model.addAttribute("immobiliers", immobilierService.findAll());
+        return "AjoutAnnonce";
+    }
+
+    @PostMapping("/add")
+    public String addAnnonce(
+            @Valid @ModelAttribute("annonceForm") AnnonceForm form,
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes) {
+        
+        if (result.hasErrors()) {
+            model.addAttribute("immobiliers", immobilierService.findAll());
+            return "AjoutAnnonce";
+        }
+
+        try {
+            Optional<Immobilier> immobilier = immobilierService.findById(form.getImmobilierId());
+            if (!immobilier.isPresent()) {
+                throw new RuntimeException("Selected Immobilier not found");
+            }
+
+            Annonce annonce = new Annonce();
+            annonce.setImmobilier(immobilier.get());
+            annonce.setDate(new Date()); // Current system date
+            annonce.setEtatAnnonce(form.getEtatAnnonce());
+
+            annonceService.save(annonce);
+            redirectAttributes.addFlashAttribute("successMessage", "Annonce added successfully");
+            return "redirect:/admin/annonces";
+            
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("immobiliers", immobilierService.findAll());
+            return "AjoutAnnonce";
+        }
+    }
+
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<Annonce> optAnnonce = annonceService.findById(id);
-        if (optAnnonce.isPresent()) {
-            Annonce annonce = optAnnonce.get();
-            AnnonceForm annonceForm = new AnnonceForm();
-            annonceForm.setId(annonce.getId());
-            annonceForm.setImmobilierId(annonce.getImmobilier().getId());
-            annonceForm.setDate(annonce.getDate());
-            annonceForm.setEtatAnnonce(annonce.getEtatAnnonce().name());
-
-            model.addAttribute("annonceForm", annonceForm);
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        } else {
-            model.addAttribute("error", "Annonce not found.");
-            return "redirect:/admin/annonces";
-        }
-    }
-
-    /**
-     * Handle Edit Annonce
-     */
-    @PostMapping("/edit/{id}")
-    public String editAnnonce(@PathVariable Long id,
-                              @ModelAttribute("annonceForm") AnnonceForm annonceForm,
-                              BindingResult bindingResult,
-                              Model model) {
-        Optional<Annonce> optAnnonce = annonceService.findById(id);
-        if (!optAnnonce.isPresent()) {
-            model.addAttribute("error", "Annonce not found.");
+        Optional<Annonce> annonce = annonceService.findById(id);
+        if (!annonce.isPresent()) {
             return "redirect:/admin/annonces";
         }
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("error", "Please correct the errors in the form.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
+        AnnonceForm form = new AnnonceForm();
+        form.setId(annonce.get().getId());
+        form.setImmobilierId(annonce.get().getImmobilier().getId());
+        form.setEtatAnnonce(annonce.get().getEtatAnnonce());
 
-        Optional<Immobilier> optImmobilier = immobilierService.findById(annonceForm.getImmobilierId());
-        if (!optImmobilier.isPresent()) {
-            model.addAttribute("error", "Selected Immobilier does not exist.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
-
-        Annonce annonce = optAnnonce.get();
-        annonce.setImmobilier(optImmobilier.get());
-        annonce.setDate(annonceForm.getDate());
-        try {
-            annonce.setEtatAnnonce(EtatAnnonce.valueOf(annonceForm.getEtatAnnonce()));
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("error", "Invalid Etat Annonce selected.");
-            List<Immobilier> immobiliers = immobilierService.findAll();
-            model.addAttribute("immobiliers", immobiliers);
-            return "AjoutAnnonce";
-        }
-
-        annonceService.save(annonce);
-        return "redirect:/admin/annonces";
+        model.addAttribute("annonceForm", form);
+        model.addAttribute("immobiliers", immobilierService.findAll());
+        return "AjoutAnnonce";
     }
 
-    /**
-     * Toggle EtatAnnonce
-     */
     @PostMapping("/toggle/{id}")
-    public String toggleEtatAnnonce(@PathVariable Long id) {
-        Optional<Annonce> optAnnonce = annonceService.findById(id);
-        if (optAnnonce.isPresent()) {
-            Annonce annonce = optAnnonce.get();
-            if (annonce.getEtatAnnonce() == EtatAnnonce.DISPO) {
-                annonce.setEtatAnnonce(EtatAnnonce.INDISPO);
-            } else {
-                annonce.setEtatAnnonce(EtatAnnonce.DISPO);
+    public String toggleEtatAnnonce(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            Optional<Annonce> optAnnonce = annonceService.findById(id);
+            if (optAnnonce.isPresent()) {
+                Annonce annonce = optAnnonce.get();
+                annonce.setEtatAnnonce(annonce.getEtatAnnonce() == EtatAnnonce.DISPO ? 
+                    EtatAnnonce.INDISPO : EtatAnnonce.DISPO);
+                annonceService.save(annonce);
+                redirectAttributes.addFlashAttribute("successMessage", "Annonce status updated");
             }
-            annonceService.save(annonce);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error updating annonce status");
         }
         return "redirect:/admin/annonces";
     }
 
-    /**
-     * Delete Annonce
-     */
     @PostMapping("/delete/{id}")
-    public String deleteAnnonce(@PathVariable Long id) {
-        annonceService.deleteById(id);
+    public String deleteAnnonce(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            annonceService.deleteById(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Annonce deleted successfully");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting annonce");
+        }
         return "redirect:/admin/annonces";
     }
 }
