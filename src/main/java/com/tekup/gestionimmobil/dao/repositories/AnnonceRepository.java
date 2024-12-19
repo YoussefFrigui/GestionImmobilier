@@ -29,4 +29,5 @@ public interface AnnonceRepository extends JpaRepository<Annonce, Long> {
         @Param("maxPrix") Double maxPrix,
         @Param("etatAnnonce") EtatAnnonce etatAnnonce,
         Pageable pageable);
+        boolean existsByImmobilier_Id(Long immobilierId);
 }

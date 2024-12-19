@@ -34,7 +34,11 @@ public class AcceuilController {
             @RequestParam(required = false) Double maxPrix) {
 
         try {
-            // Handle edge cases for price range
+            // Clean up search parameters
+            type = (type != null && !type.isEmpty()) ? type.trim() : null;
+            ville = (ville != null && !ville.isEmpty()) ? ville.trim() : null;
+
+            // Validate price range
             if (minPrix != null && maxPrix != null && minPrix > maxPrix) {
                 Double temp = minPrix;
                 minPrix = maxPrix;
@@ -43,26 +47,40 @@ public class AcceuilController {
 
             // Get filtered and paginated announcements
             Page<Annonce> annoncePage = annonceService.findAnnoncesWithFilters(
-                page - 1, size, type, ville, minPrix, maxPrix, EtatAnnonce.DISPO);
+                page - 1, 
+                size, 
+                type, 
+                ville, 
+                minPrix, 
+                maxPrix, 
+                EtatAnnonce.DISPO
+            );
 
-            // Add pagination data to model
+            // Add search results to model
             model.addAttribute("annonces", annoncePage.getContent());
             model.addAttribute("currentPage", page);
             model.addAttribute("totalPages", annoncePage.getTotalPages());
             model.addAttribute("totalItems", annoncePage.getTotalElements());
 
-            // Add filter parameters to model
+            // Preserve search parameters
             model.addAttribute("type", type);
             model.addAttribute("ville", ville);
             model.addAttribute("minPrix", minPrix);
             model.addAttribute("maxPrix", maxPrix);
 
+            // Add empty results message if no results found
+            if (annoncePage.getTotalElements() == 0) {
+                model.addAttribute("noResults", "Aucune annonce trouvée avec ces critères");
+            }
+
             return "Acceuil";
         } catch (Exception e) {
-            model.addAttribute("errorMessage", "Error loading announcements: " + e.getMessage());
+            model.addAttribute("errorMessage", "Erreur lors de la recherche: " + e.getMessage());
             return "error";
         }
     }
+
+    
 
     @GetMapping("/details/{id}")
     public String showAnnonceDetails(

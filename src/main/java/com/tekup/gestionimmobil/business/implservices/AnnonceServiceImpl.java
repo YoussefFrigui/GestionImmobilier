@@ -82,4 +82,8 @@ public class AnnonceServiceImpl implements AnnonceService {
 
         return annonceRepository.findByFilters(type, ville, minPrix, maxPrix, etatAnnonce, pageable);
     }
+    @Override
+public boolean existsByImmobilierId(Long immobilierId) {
+    return annonceRepository.existsByImmobilier_Id(immobilierId);
+}
 }
