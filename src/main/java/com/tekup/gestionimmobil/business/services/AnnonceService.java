@@ -16,4 +16,5 @@ public interface AnnonceService {
     Page<Annonce> findPaginated(int page, int size);
     Page<Annonce> findAnnoncesWithFilters(int page, int size, String type, 
         String ville, Double minPrix, Double maxPrix, EtatAnnonce etatAnnonce);
+    boolean existsByImmobilierId(Long immobilierId);
 }

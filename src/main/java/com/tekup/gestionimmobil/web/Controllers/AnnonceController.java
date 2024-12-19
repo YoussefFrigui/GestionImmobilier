@@ -59,68 +59,50 @@ public class AnnonceController {
         }
 
         try {
+            // Check if immobilier exists
             Optional<Immobilier> immobilier = immobilierService.findById(form.getImmobilierId());
             if (!immobilier.isPresent()) {
-                throw new RuntimeException("Selected Immobilier not found");
+                throw new RuntimeException("Selected property not found");
             }
 
+            // Check if annonce already exists for this immobilier
+            if (annonceService.existsByImmobilierId(form.getImmobilierId())) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "An announcement already exists for this property");
+                redirectAttributes.addFlashAttribute("annonceForm", form);
+                return "redirect:/admin/annonces/add";
+            }
+
+            // Create new annonce
             Annonce annonce = new Annonce();
             annonce.setImmobilier(immobilier.get());
-            annonce.setDate(new Date()); // Current system date
+            annonce.setDate(new Date());
             annonce.setEtatAnnonce(form.getEtatAnnonce());
 
+            // Save annonce
             annonceService.save(annonce);
-            redirectAttributes.addFlashAttribute("successMessage", "Annonce added successfully");
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Announcement created successfully");
             return "redirect:/admin/annonces";
-            
+
         } catch (Exception e) {
-            model.addAttribute("errorMessage", e.getMessage());
-            model.addAttribute("immobiliers", immobilierService.findAll());
-            return "AjoutAnnonce";
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error creating announcement: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("annonceForm", form);
+            return "redirect:/admin/annonces/add";
         }
-    }
-
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
-        Optional<Annonce> annonce = annonceService.findById(id);
-        if (!annonce.isPresent()) {
-            return "redirect:/admin/annonces";
-        }
-
-        AnnonceForm form = new AnnonceForm();
-        form.setId(annonce.get().getId());
-        form.setImmobilierId(annonce.get().getImmobilier().getId());
-        form.setEtatAnnonce(annonce.get().getEtatAnnonce());
-
-        model.addAttribute("annonceForm", form);
-        model.addAttribute("immobiliers", immobilierService.findAll());
-        return "AjoutAnnonce";
-    }
-
-    @PostMapping("/toggle/{id}")
-    public String toggleEtatAnnonce(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            Optional<Annonce> optAnnonce = annonceService.findById(id);
-            if (optAnnonce.isPresent()) {
-                Annonce annonce = optAnnonce.get();
-                annonce.setEtatAnnonce(annonce.getEtatAnnonce() == EtatAnnonce.DISPO ? 
-                    EtatAnnonce.INDISPO : EtatAnnonce.DISPO);
-                annonceService.save(annonce);
-                redirectAttributes.addFlashAttribute("successMessage", "Annonce status updated");
-            }
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error updating annonce status");
-        }
-        return "redirect:/admin/annonces";
     }
 
     @PostMapping("/delete/{id}")
-    public String deleteAnnonce(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteAnnonce(@PathVariable Long id, 
+            RedirectAttributes redirectAttributes) {
         try {
             annonceService.deleteById(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Annonce deleted successfully");
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Announcement deleted successfully");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting annonce");
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error deleting announcement");
         }
         return "redirect:/admin/annonces";
     }
